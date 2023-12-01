@@ -48,7 +48,11 @@ RakNetTime RakNet::GetTime( void )
 		// It gives the wrong value since 2^10 is not 1000
 	//	counts = yo.QuadPart;// / 1000;
 #else
-		gettimeofday( &initialTime, 0 );
+		struct timeval tv;
+		gettimeofday(&tv, 0);
+
+		initialTime.tv_sec = tv.tv_usec + 1000000 * tv.tv_sec;
+		initialTime.tv_usec = tv.tv_usec + 1000000LL * tv.tv_sec;
 #endif
 		
 		initialized = true;
@@ -61,11 +65,11 @@ RakNetTime RakNet::GetTime( void )
 	
 	return (RakNetTime)(PerfVal.QuadPart*1000 / yo.QuadPart);
 #else
-	struct timeval tp;
-	gettimeofday( &tp, 0 );
+	struct timeval tv;
+	gettimeofday(&tv, 0);
 	
 	// Seconds to ms and microseconds to ms
-	return ( tp.tv_sec - initialTime.tv_sec ) * 1000 + ( tp.tv_usec - initialTime.tv_usec ) / 1000;
+	return (tv.tv_usec - initialTime.tv_usec + 1000000LL * (tv.tv_sec - initialTime.tv_sec)) / 1000;
 	
 #endif
 }
@@ -82,7 +86,11 @@ RakNetTimeNS RakNet::GetTimeNS( void )
 		// It gives the wrong value since 2^10 is not 1000
 		//	counts = yo.QuadPart;// / 1000;
 #else
-		gettimeofday( &initialTime, 0 );
+		struct timeval tv;
+		gettimeofday(&tv, 0);
+
+		initialTime.tv_sec = tv.tv_usec + 1000000 * tv.tv_sec;
+		initialTime.tv_usec = tv.tv_usec + 1000000LL * tv.tv_sec;
 #endif
 
 		initialized = true;
@@ -100,10 +108,10 @@ RakNetTimeNS RakNet::GetTimeNS( void )
 	return quotient*1000 + (remainder*1000 / yo.QuadPart);
 
 #else
-	struct timeval tp;
-	gettimeofday( &tp, 0 );
+	struct timeval tv;
+	gettimeofday(&tv, 0);
 
-	return ( tp.tv_sec - initialTime.tv_sec ) * (RakNetTimeNS) 1000000 + ( tp.tv_usec - initialTime.tv_usec );
+	return tv.tv_usec - initialTime.tv_usec + 1000000LL * (tv.tv_sec - initialTime.tv_sec);
 
 #endif
 }
